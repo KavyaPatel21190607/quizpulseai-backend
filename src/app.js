@@ -26,7 +26,31 @@ configurePassport();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+const configuredOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const defaultOrigins = [
+  'https://quizpulseai-v1.vercel.app',
+  'https://quizpulseai.onrender.com',
+  'http://localhost:5173',
+];
+
+const allowedOrigins = new Set([...defaultOrigins, ...configuredOrigins]);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS not allowed for this origin'));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(
   rateLimit({
