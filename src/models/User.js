@@ -39,6 +39,24 @@ const userSchema = new mongoose.Schema(
       enum: ['active', 'inactive', 'suspended'],
       default: 'active',
     },
+    learningStreak: {
+      current: {
+        type: Number,
+        default: 0,
+      },
+      longest: {
+        type: Number,
+        default: 0,
+      },
+      lastQuizCompletedAt: {
+        type: Date,
+        default: null,
+      },
+      updatedAt: {
+        type: Date,
+        default: null,
+      },
+    },
     avatar: {
       type: String,
       default: null,
