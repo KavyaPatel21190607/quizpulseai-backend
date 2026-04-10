@@ -31,6 +31,31 @@ const quizSchema = new mongoose.Schema(
       enum: ['formative', 'summative', 'diagnostic'],
       default: 'formative',
     },
+    generationMode: {
+      type: String,
+      enum: ['standard', 'spaced-repetition'],
+      default: 'standard',
+    },
+    repetitionLevel: {
+      type: Number,
+      default: 0,
+    },
+    repetitionSourceQuizIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Quiz',
+      },
+    ],
+    repetitionSourceAttemptIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'QuizAttempt',
+      },
+    ],
+    repetitionHistoryNote: {
+      type: String,
+      default: '',
+    },
     difficulty: {
       type: String,
       enum: ['easy', 'medium', 'hard'],
