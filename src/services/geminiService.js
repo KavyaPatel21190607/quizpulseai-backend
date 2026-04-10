@@ -99,6 +99,25 @@ export const generateQuizWithGemini = async (quizConfig) => {
       throw new Error('GEMINI_API_KEY is missing');
     }
 
+    const generationMode = quizConfig.generationMode === 'spaced-repetition' ? 'spaced-repetition' : 'standard';
+    const priorQuestions = Array.isArray(quizConfig.priorQuestions) ? quizConfig.priorQuestions : [];
+    const priorQuestionBlock = priorQuestions.length > 0
+      ? priorQuestions.map((question, index) => `${index + 1}. ${question}`).join('\n')
+      : 'No prior question history available.';
+    const repetitionRound = Number(quizConfig.repetitionLevel || 0);
+    const repetitionInstruction = generationMode === 'spaced-repetition'
+      ? `
+Spaced repetition mode is enabled.
+Repetition round: ${repetitionRound || 1}
+You must make the quiz noticeably more advanced than the previous round.
+Do not reuse, paraphrase, or lightly rewrite the following previously used question prompts:
+${priorQuestionBlock}
+Recent performance summary:
+${quizConfig.recentAttemptSummary || 'No recent attempt summary available.'}
+Use new contexts, new numbers, and new scenarios.
+`
+      : '';
+
     const prompt = `Generate a quiz with the following specifications:
     
 Subject: ${quizConfig.subject}
@@ -111,6 +130,8 @@ Number of Questions: ${quizConfig.numberOfQuestions}
 Question Types: ${Object.keys(quizConfig.questionTypes)
       .filter((key) => quizConfig.questionTypes[key])
       .join(', ')}
+Generation Mode: ${generationMode}
+${repetitionInstruction}
 
 For each question, provide:
 1. The question text
